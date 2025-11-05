@@ -40,7 +40,7 @@ def get_ssh_client(application: str) -> paramiko.SSHClient:
             username=SSH_USER,
             password=SSH_PASS
         )
-    else:
+    elif (application == "test_application_3"):
         client.connect(
             hostname=SSH_HOST,
             port=SSH_PORT_3,
@@ -203,7 +203,6 @@ def update_tomcat_version(ctx: Context, version: str, application: str, poll_int
         "Content-Type": "application/json"
     }
 
-    # 1. Launch the Job
     launch_url = f"{AWX_URL}/api/v2/job_templates/{AWX_TEMPLATE_ID}/launch/"
     payload = {
         "extra_vars": {"tomcat_version": version}
@@ -218,14 +217,13 @@ def update_tomcat_version(ctx: Context, version: str, application: str, poll_int
         job_id = launch_data.get("job")
 
         if not job_id:
-            return "Error: Could not retrieve job ID after launching."
+            ctx.error("Error: Could not retrieve job ID after launching.")
 
         ctx.info(f"Successfully launched AWX job with ID: {job_id}. Waiting for completion...")
 
     except requests.exceptions.RequestException as e:
         return f"An error occurred while launching the job: {e}"
 
-    # 2. Poll for Job Completion
     job_status_url = f"{AWX_URL}/api/v2/jobs/{job_id}/"
     start_time = time.time()
 
