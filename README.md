@@ -79,3 +79,11 @@ To run the application, you can use the `docker-compose.yml` file located in the
     ```bash
     docker-compose up -d
     ```
+
+## SSH into the application
+
+To connect to the applications through SSH you have to additionaly provide the port the application is running on (currently: 2221, 2222 or 2223). The root password is located inside the Dockerfile.
+
+```bash
+ssh -p 2223 root@localhost
+```
