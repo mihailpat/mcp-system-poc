@@ -26,21 +26,21 @@ mcp = FastMCP(name="Tomcat server maintainer")
 def get_ssh_client(application: str) -> paramiko.SSHClient:
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    if (application == "test_application_1"):
+    if (application == "test-application-1"):
         client.connect(
             hostname=SSH_HOST,
             port=SSH_PORT_1,
             username=SSH_USER,
             password=SSH_PASS
         )
-    elif (application == "test_application_2"):
+    elif (application == "test-application-2"):
         client.connect(
             hostname=SSH_HOST,
             port=SSH_PORT_2,
             username=SSH_USER,
             password=SSH_PASS
         )
-    elif (application == "test_application_3"):
+    elif (application == "test-application-3"):
         client.connect(
             hostname=SSH_HOST,
             port=SSH_PORT_3,
@@ -56,7 +56,7 @@ def get_tomcat_version(application: str, ctx: Context) -> str:
 
     Args:
         ctx: LLM context
-        application: Name of application (test_application_<number>)
+        application: Name of application (test-application-<number>)
     """
      
     client = get_ssh_client(application)
@@ -85,7 +85,7 @@ async def summarize_tomcat_logs(application: str, day: str) -> str:
 
     Args:
         day: Day from which the logs should be gathered.
-        application: Name of application (test_application_<number>)
+        application: Name of application (test-application-<number>)
     """
     day_lower = day.lower().strip()
 
@@ -131,7 +131,7 @@ def scan_tomcat_libs(application: str) -> str:
     List JARs inside Tomcat's /usr/local/tomcat/lib and check them for current vulnerabilities and CVEs. Provide suitable solutions to mitigate the vulnerabilities.
 
     Args:
-        application: Name of application (test_application_<number>)
+        application: Name of application (test-application-<number>)
     """
     
     lib_path = "/usr/local/tomcat/lib/"
@@ -194,7 +194,7 @@ def update_tomcat_version(ctx: Context, version: str, application: str, poll_int
     Args:
         ctx: LLM context
         version: The target Tomcat version.
-        application: The specific application (test_application_<number>) or host to target (used for the 'limit' in AWX).
+        application: The specific application (test-application-<number>) or host to target (used for the 'limit' in AWX).
         poll_interval: Seconds to wait between status checks.
         timeout: Maximum seconds to wait for the job to complete.
     """
