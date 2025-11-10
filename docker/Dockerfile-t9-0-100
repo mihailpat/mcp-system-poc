@@ -2,7 +2,7 @@ FROM tomcat:9.0.100-jdk8-corretto-al2
 
 # Install SSH server and sudo
 RUN yum update -y && \
-    yum install -y openssh-server sudo passwd unzip gzip tar && \
+    yum install -y openssh-server sudo passwd unzip gzip tar wget && \
     yum clean all && \
     rm -rf /var/cache/yum
 
@@ -22,6 +22,9 @@ RUN mkdir -p /var/run/sshd
 
 # Init default webapps
 RUN cp -R /usr/local/tomcat/webapps.dist/* /usr/local/tomcat/webapps
+
+# Install log4j jar to test vulnerabilities check
+RUN wget -P /usr/local/tomcat/lib/ https://repo1.maven.org/maven2/log4j/log4j/1.2.17/log4j-1.2.17.jar
 
 # Generate host keys at build time
 RUN ssh-keygen -A

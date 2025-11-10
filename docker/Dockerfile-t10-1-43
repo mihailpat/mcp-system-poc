@@ -2,7 +2,7 @@ FROM tomcat:10.1.43-jdk21-temurin-noble
 
 # Install SSH server and sudo
 RUN apt-get update -y && \
-    apt-get install -y openssh-server sudo passwd unzip gzip tar
+    apt-get install -y openssh-server sudo passwd unzip gzip tar wget
 
 # Set root password (change this in real use!)
 RUN echo "root:rootpassword" | chpasswd
@@ -20,6 +20,9 @@ RUN mkdir -p /var/run/sshd
 
 # Init default webapps
 RUN cp -R /usr/local/tomcat/webapps.dist/* /usr/local/tomcat/webapps
+
+# Install log4j jar to test vulnerabilities check
+RUN wget -P /usr/local/tomcat/lib/ https://repo1.maven.org/maven2/log4j/log4j/1.2.17/log4j-1.2.17.jar
 
 # Generate host keys at build time
 RUN ssh-keygen -A
