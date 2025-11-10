@@ -6,7 +6,7 @@ This document provides instructions on how to set up the environment for the MCP
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Minikube](https://minikube.sigs.k8s.io/docs/start/)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## Installation
 
@@ -18,6 +18,10 @@ This document provides instructions on how to set up the environment for the MCP
     ```bash
     minikube start
     ```
+
+### uv
+
+Install uv by following the official documentation: [https://docs.astral.sh/uv/getting-started/installation/](https://docs.astral.sh/uv/getting-started/installation/)
 
 ### AWX Operator
 
@@ -33,11 +37,34 @@ A summary of the steps is provided below:
     git checkout $(git describe --tags --abbrev=0)
     ```
 
-2.  Deploy the operator:
+2.  Deploy the operator using `make` or through `kustomization.yaml`:
 
+    1. `make`
     ```bash
     make deploy
     ```
+
+    2. `kustomization.yaml`
+    ```yaml
+    ---
+    apiVersion: kustomize.config.k8s.io/v1beta1
+    kind: Kustomization
+    resources:
+    # Find the latest tag here: https://github.com/ansible/awx-operator/releases
+        - github.com/ansible/awx-operator/config/default?ref=<tag>
+
+    # Set the image tags to match the git version from above
+    images:
+        - name: quay.io/ansible/awx-operator
+          newTag: <tag>
+
+    # Specify a custom namespace in which to install AWX
+    namespace: awx
+    ```
+    ```bash
+    kubectl apply -k .
+    ```
+
 
 3.  Create an AWX instance. Create a file named `awx-demo.yml` with the following content:
 
@@ -49,7 +76,6 @@ A summary of the steps is provided below:
       name: awx-demo
     spec:
       service_type: nodeport
-      nodeport_port: 30080
     ```
 
 4.  Apply the `awx-demo.yml` to create the AWX instance:
@@ -87,3 +113,51 @@ To connect to the applications through SSH you have to additionaly provide the p
 ```bash
 ssh -p 2223 root@localhost
 ```
+
+## MCP server configuration
+
+1. The MCP server can be connected to various MCP clients. The PoC was tested with Gemini CLI, Claude Desktop and LM Studio. They can be installed using the following resources:
+
+- https://github.com/google-gemini/gemini-cli
+- https://www.claude.com/download
+- https://lmstudio.ai/
+
+2. The MCP server configuration has to be done inside the clients settings JSON file. Example for Claude Desktop: https://modelcontextprotocol.io/docs/develop/build-server
+
+> **WARNING**: You may need to put the full path to the ```uv``` executable in the command field. You can get this by running ```which uv``` on macOS/Linux or ```where uv``` on Windows.
+
+> **Info**: Make sure you pass in the absolute path to your server. You can get this by running ```pwd``` on macOS/Linux or ```cd``` on Windows Command Prompt. On Windows, remember to use double backslashes (```\\```) or forward slashes (```/```) in the JSON path.
+
+- macOS / Linux (```~/.config/Claude/claude_desktop_config.json```)
+```json
+{
+  "mcpServers": {
+    "Tomcat server maintainer": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/ABSOLUTE/PATH/TO/PARENT/FOLDER/src/poc",
+        "run",
+        "main.py"
+      ]
+    }
+  }
+}
+```
+- Windows (```%APPDATA%\Claude\claude_desktop_config.json```)
+```json
+{
+  "mcpServers": {
+    "Tomcat server maintainer": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\ABSOLUTE\\PATH\\TO\\PARENT\\FOLDER\\src\\poc",
+        "run",
+        "main.py"
+      ]
+    }
+  }
+}
+```
+
