@@ -46,19 +46,20 @@ A summary of the steps is provided below:
 
     2. `kustomization.yaml`
     ```yaml
-    ---\napiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-# Find the latest tag here: https://github.com/ansible/awx-operator/releases
-    - github.com/ansible/awx-operator/config/default?ref=<tag>
+    ---
+    apiVersion: kustomize.config.k8s.io/v1beta1
+    kind: Kustomization
+    resources:
+    # Find the latest tag here: https://github.com/ansible/awx-operator/releases
+        - github.com/ansible/awx-operator/config/default?ref=<tag>
 
-# Set the image tags to match the git version from above
-images:
-    - name: quay.io/ansible/awx-operator
-      newTag: <tag>
+    # Set the image tags to match the git version from above
+    images:
+        - name: quay.io/ansible/awx-operator
+          newTag: <tag>
 
-# Specify a custom namespace in which to install AWX
-namespace: awx
+    # Specify a custom namespace in which to install AWX
+    namespace: awx
     ```
     ```bash
     kubectl apply -k .
@@ -68,12 +69,13 @@ namespace: awx
 3.  Create an AWX instance. Create a file named `awx-demo.yml` with the following content:
 
     ```yaml
-    ---\napiVersion: awx.ansible.com/v1beta1
-kind: AWX
-metadata:
-  name: awx-demo
-spec:
-  service_type: nodeport
+    ---
+    apiVersion: awx.ansible.com/v1beta1
+    kind: AWX
+    metadata:
+      name: awx-demo
+    spec:
+      service_type: nodeport
     ```
 
 4.  Apply the `awx-demo.yml` to create the AWX instance:
