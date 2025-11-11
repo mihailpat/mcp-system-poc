@@ -46,20 +46,19 @@ A summary of the steps is provided below:
 
     2. `kustomization.yaml`
     ```yaml
-    ---
-    apiVersion: kustomize.config.k8s.io/v1beta1
-    kind: Kustomization
-    resources:
-    # Find the latest tag here: https://github.com/ansible/awx-operator/releases
-        - github.com/ansible/awx-operator/config/default?ref=<tag>
+    ---\napiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+# Find the latest tag here: https://github.com/ansible/awx-operator/releases
+    - github.com/ansible/awx-operator/config/default?ref=<tag>
 
-    # Set the image tags to match the git version from above
-    images:
-        - name: quay.io/ansible/awx-operator
-          newTag: <tag>
+# Set the image tags to match the git version from above
+images:
+    - name: quay.io/ansible/awx-operator
+      newTag: <tag>
 
-    # Specify a custom namespace in which to install AWX
-    namespace: awx
+# Specify a custom namespace in which to install AWX
+namespace: awx
     ```
     ```bash
     kubectl apply -k .
@@ -69,13 +68,12 @@ A summary of the steps is provided below:
 3.  Create an AWX instance. Create a file named `awx-demo.yml` with the following content:
 
     ```yaml
-    ---
-    apiVersion: awx.ansible.com/v1beta1
-    kind: AWX
-    metadata:
-      name: awx-demo
-    spec:
-      service_type: nodeport
+    ---\napiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx-demo
+spec:
+  service_type: nodeport
     ```
 
 4.  Apply the `awx-demo.yml` to create the AWX instance:
@@ -161,3 +159,54 @@ ssh -p 2223 root@localhost
 }
 ```
 
+## AWX configuration
+
+### 1. Configure Project
+
+1.  Navigate to **Projects** in the AWX UI and click **Add**.
+2.  Fill in the following details:
+    -   **Name:** `mcp-system-poc-project`
+    -   **Organization:** `Default`
+    -   **Source Control Credential Type:** `Git`
+    -   **Source Control URL:** `https://github.com/mihailpat/mcp-system-poc.git`
+3.  Click **Save**.
+
+### 2. Configure Credential
+
+1.  Navigate to **Credentials** and click **Add**.
+2.  Fill in the following details:
+    -   **Name:** `Tomcat Server Credential`
+    -   **Credential Type:** `Machine`
+    -   **Username:** `root`
+    -   **Password:** `rootpassword`
+3.  Click **Save**.
+
+### 3. Configure Inventory and Inventory Source
+
+1.  Navigate to **Inventories** and click **Add**, then select **Add inventory**.
+2.  Fill in the following details:
+    -   **Name:** `Tomcat Servers`
+    -   **Organization:** `Default`
+3.  Click **Save**.
+4.  In the inventory view, click on the **Sources** tab and then click **Add**.
+5.  Fill in the following details:
+    -   **Name:** `Tomcat Inventory Source`
+    -   **Source:** `Sourced from a Project`
+    -   **Project:** `mcp-system-poc-project`
+    -   **Inventory File:** `ansible-awx/inventory/inventory.ini`
+6.  Click **Save**.
+
+### 4. Configure Job Template
+
+1.  Navigate to **Templates** and click **Add**, then select **Add job template**.
+2.  Fill in the following details:
+    -   **Name:** `Update Tomcat Version`
+    -   **Job Type:** `Run`
+    -   **Inventory:** `Tomcat Servers`
+    -   **Project:** `mcp-system-poc-project`
+    -   **Playbook:** `ansible-awx/playbooks/tomcat-update.yml`
+    -   **Limit:** Set to Prompt on launch
+    -   **Variables:** Set to Prompt on launch
+3.  In the **Credentials** section, click **Add** and select the `Tomcat Server Credential`.
+4.  Click **Save**.
+> **Info**: In case of manual template testing the options `Limit` and `Variables` have to be prompted on launch and be set accordingly. (e.g: test-application-1 as Limit and tomcat_version: 9.0.111 as Variable)
