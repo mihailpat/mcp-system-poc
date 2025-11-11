@@ -90,6 +90,12 @@ A summary of the steps is provided below:
     kubectl get secret awx-demo-admin-password -o jsonpath="{.data.password}" | base64 --decode
     ```
 
+## Running the AWX demo server
+
+  ```bash
+  minikube service awx-demo-service --url -n awx
+  ```
+
 ## Running the application
 
 To run the application, you can use the `docker-compose.yml` file located in the `docker` directory.
@@ -112,53 +118,6 @@ To connect to the applications through SSH you have to additionaly provide the p
 
 ```bash
 ssh -p 2223 root@localhost
-```
-
-## MCP server configuration
-
-1. The MCP server can be connected to various MCP clients. The PoC was tested with Gemini CLI, Claude Desktop and LM Studio. They can be installed using the following resources:
-
-- https://github.com/google-gemini/gemini-cli
-- https://www.claude.com/download
-- https://lmstudio.ai/
-
-2. The MCP server configuration has to be done inside the clients settings JSON file. Example for Claude Desktop: https://modelcontextprotocol.io/docs/develop/build-server
-
-> **WARNING**: You may need to put the full path to the ```uv``` executable in the command field. You can get this by running ```which uv``` on macOS/Linux or ```where uv``` on Windows.
-
-> **Info**: Make sure you pass in the absolute path to your server. You can get this by running ```pwd``` on macOS/Linux or ```cd``` on Windows Command Prompt. On Windows, remember to use double backslashes (```\\```) or forward slashes (```/```) in the JSON path.
-
-- macOS / Linux (```~/.config/Claude/claude_desktop_config.json```)
-```json
-{
-  "mcpServers": {
-    "Tomcat server maintainer": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/ABSOLUTE/PATH/TO/PARENT/FOLDER/src/poc",
-        "run",
-        "main.py"
-      ]
-    }
-  }
-}
-```
-- Windows (```%APPDATA%\Claude\claude_desktop_config.json```)
-```json
-{
-  "mcpServers": {
-    "Tomcat server maintainer": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "C:\\ABSOLUTE\\PATH\\TO\\PARENT\\FOLDER\\src\\poc",
-        "run",
-        "main.py"
-      ]
-    }
-  }
-}
 ```
 
 ## AWX configuration
@@ -212,3 +171,60 @@ ssh -p 2223 root@localhost
 3.  In the **Credentials** section, click **Add** and select the `Tomcat Server Credential`.
 4.  Click **Save**.
 > **Info**: In case of manual template testing the options `Limit` and `Variables` have to be prompted on launch and be set accordingly. (e.g: test-application-1 as Limit and tomcat_version: 9.0.111 as Variable)
+
+
+## MCP server configuration
+
+### Prerequisites
+
+- Copy the file ```.env.template``` as a new env-file (```yourpath/mcp-system-poc/src/poc/.env```)
+- Set the AWX_URL to the URL displayed by [Runnning the AWX demo server](#running-the-awx-demo-server)
+- Set the AWX_TEMPLATE_ID from the Job Template URL (e.g. 11 for http://127.0.0.1:63790/#/templates/job_template/11/details)
+- Create a new AWX_TOKEN from your user profile
+
+### Configuration
+
+1. The MCP server can be connected to various MCP clients. The PoC was tested with Gemini CLI, Claude Desktop and LM Studio. They can be installed using the following resources:
+
+- https://github.com/google-gemini/gemini-cli
+- https://www.claude.com/download
+- https://lmstudio.ai/
+
+2. The MCP server configuration has to be done inside the clients settings JSON file. Example for Claude Desktop: https://modelcontextprotocol.io/docs/develop/build-server
+
+> **WARNING**: You may need to put the full path to the ```uv``` executable in the command field. You can get this by running ```which uv``` on macOS/Linux or ```where uv``` on Windows.
+
+> **Info**: Make sure you pass in the absolute path to your server. You can get this by running ```pwd``` on macOS/Linux or ```cd``` on Windows Command Prompt. On Windows, remember to use double backslashes (```\\```) or forward slashes (```/```) in the JSON path.
+
+- macOS / Linux (```~/.config/Claude/claude_desktop_config.json```)
+```json
+{
+  "mcpServers": {
+    "Tomcat server maintainer": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/ABSOLUTE/PATH/TO/PARENT/FOLDER/src/poc",
+        "run",
+        "main.py"
+      ]
+    }
+  }
+}
+```
+- Windows (```%APPDATA%\Claude\claude_desktop_config.json```)
+```json
+{
+  "mcpServers": {
+    "Tomcat server maintainer": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\ABSOLUTE\\PATH\\TO\\PARENT\\FOLDER\\src\\poc",
+        "run",
+        "main.py"
+      ]
+    }
+  }
+}
+```
